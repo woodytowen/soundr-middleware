@@ -10,7 +10,8 @@
     "prebuild": "npm run format && npm run lint",
     "start": "node dist/index.js",
     "build": "npm run prebuild && tsc",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon src/index.ts",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "Owen Woodward",
@@ -34,12 +35,10 @@
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.17.0"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": [
-        "yarn format",
-        "yarn lint"
-      ]
-    }
-  }
+  "lint-staged": {
+		"*.{js,jsx,ts,tsx}": [
+			"yarn format",
+			"yarn lint:fix"
+		]
+	}
 }
