@@ -1,0 +1,45 @@
+{
+  "name": "express-ts-practice",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint 'src/**/*.{ts,js}'",
+    "lint:fix": "eslint 'src/**/*.{ts,js}' --fix",
+    "format": "prettier --write 'src/**/*.{ts,js}'",
+    "prebuild": "npm run format && npm run lint",
+    "start": "node dist/index.js",
+    "build": "npm run prebuild && tsc",
+    "dev": "nodemon src/index.ts"
+  },
+  "keywords": [],
+  "author": "Owen Woodward",
+  "license": "ISC",
+  "description": "Test application for setting up node with typescript",
+  "dependencies": {
+    "express": "^4.21.1",
+    "husky": "^9.1.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.17.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": [
+        "yarn format",
+        "yarn lint"
+      ]
+    }
+  }
+}
