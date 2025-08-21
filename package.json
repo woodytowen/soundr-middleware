@@ -1,16 +1,16 @@
 {
-  "name": "express-ts-practice",
+  "name": "soundr-middleware",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint 'src/**/*.{ts,js}'",
     "lint:fix": "eslint 'src/**/*.{ts,js}' --fix",
     "format": "prettier --write 'src/**/*.{ts,js}'",
     "prebuild": "npm run format && npm run lint",
-    "start": "node dist/index.js",
-    "build": "npm run prebuild && tsc",
-    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "start": "npm run build && node dist/server.js",
+    "dev": "nodemon src/server.ts",
     "prepare": "husky"
   },
   "keywords": [],
@@ -18,8 +18,7 @@
   "license": "ISC",
   "description": "Test application for setting up node with typescript",
   "dependencies": {
-    "express": "^4.21.1",
-    "husky": "^9.1.7"
+    "express": "^4.21.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
@@ -27,8 +26,12 @@
     "@types/node": "^22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
+    "axios": "^1.7.9",
     "eslint": "^9.16.0",
     "globals": "^15.13.0",
+    "helmet": "^8.0.0",
+    "http-status-codes": "^2.3.0",
+    "husky": "^9.1.7",
     "nodemon": "^3.1.7",
     "prettier": "^3.4.1",
     "ts-node": "^10.9.2",
@@ -36,9 +39,9 @@
     "typescript-eslint": "^8.17.0"
   },
   "lint-staged": {
-		"*.{js,jsx,ts,tsx}": [
-			"yarn format",
-			"yarn lint:fix"
-		]
-	}
+    "*.{js,jsx,ts,tsx}": [
+      "yarn format",
+      "yarn lint:fix"
+    ]
+  }
 }
