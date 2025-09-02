@@ -1,4 +1,4 @@
-export interface SkiddleEventRequest {
+export interface SoundrEventRequest {
   longitude?: string;
   latitude?: string;
   radius?: string;

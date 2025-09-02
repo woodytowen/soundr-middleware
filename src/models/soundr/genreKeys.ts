@@ -6,3 +6,8 @@ export enum TicketMasterGenreKeys {
   EXPERIMENTAL_JUNGLE = 'KZazBEonSMnZfZ7vAEE',
   TECHNO_BASS = 'KZazBEonSMnZfZ7vAtJ',
 }
+
+export enum SkiddleGenreKeys {
+  DRUM_AND_BASS = '8',
+  JUNGLE = '80',
+}

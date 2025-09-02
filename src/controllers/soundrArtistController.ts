@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { getArtist } from '../../services/skiddle/skiddleService';
+import { getArtist } from '../services/skiddle/skiddleService';
 
+/**
+ * Controller for handling artist-related requests.
+ *
+ * Test Use Only Right Now
+ */
 export const artistController = async (req: Request, res: Response) => {
   try {
     const name = typeof req.query.name === 'string' ? req.query.name.trim() : '';

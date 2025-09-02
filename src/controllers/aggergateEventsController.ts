@@ -1,12 +1,13 @@
-import { getEventsSkiddle } from '../../services/skiddle/skiddleService';
+import { aggregateSoundrEvents } from '../services/soundr/aggregateEventService';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-export const eventsController = async (req: Request, res: Response) => {
+export const aggregateEventsController = async (req: Request, res: Response) => {
   try {
-    const data = await getEventsSkiddle({ genre: ['8', '80'] });
+    // Pass request params to aggregate service if needed
+    const data = await aggregateSoundrEvents();
 
-    if (!data) {
+    if (!data || data.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: 'No events found',
@@ -15,7 +16,7 @@ export const eventsController = async (req: Request, res: Response) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: data,
+      data,
     });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

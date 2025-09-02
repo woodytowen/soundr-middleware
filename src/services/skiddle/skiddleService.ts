@@ -1,18 +1,23 @@
 import axios from 'axios';
-import { SKIDDLE_ARTIST_SEARCH, SKIDDLE_EVENTS_SEARCH } from '../../routes/skiddle/constants/skiddleApiRoutes';
-import { SkiddleEventRequest } from '../../models/skiddle/eventRequest';
+import { SKIDDLE_ARTIST_SEARCH, SKIDDLE_EVENTS_SEARCH } from '../../routes/api/skiddleApiRoutes';
+import { SoundrEventRequest } from '../../models/soundr/eventRequest';
+import { Result, SkiddleEventResponse } from '../../models/rest-api/skiddleEventResponse';
 
-export const getEventsSkiddle = async (skiddleEvent: SkiddleEventRequest) => {
+export const getEventsSkiddle = async (skiddleEvent: SoundrEventRequest): Promise<Result[]> => {
   //if using an array for genres -> need to unpacking here and cracking string for API
+
+  //Need to unpackRequest here with GenreKeyMapping
+
   const apiUrl = SKIDDLE_EVENTS_SEARCH(skiddleEvent);
 
-  const response = await axios.get(apiUrl);
+  const response: SkiddleEventResponse = await axios.get(apiUrl);
 
-  if (!response.data) {
-    throw new Error('User not found');
+  if (!response.data || response.status !== 200) {
+    throw new Error('Requested Skiddle Events Not Found');
   }
 
-  return response.data;
+  //Todo do we need a response builder here or send everything?
+  return response.data.results;
 };
 
 export const getArtist = async (artist: string) => {

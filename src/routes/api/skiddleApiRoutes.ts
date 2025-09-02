@@ -1,5 +1,5 @@
-import { SkiddleEventRequest } from '../../../models/skiddle/eventRequest';
-import { formatArrayForUrl } from '../../util/utils';
+import { SoundrEventRequest } from '../../models/soundr/eventRequest';
+import { formatArrayForUrl } from '../util/utils';
 
 export const SKIDDLE_BASE_URL = 'https://www.skiddle.com/api/v1/';
 
@@ -10,7 +10,7 @@ export const SKIDDLE_BASE_URL = 'https://www.skiddle.com/api/v1/';
  *
  *
  */
-export const SKIDDLE_EVENTS_SEARCH = (skiddleEvent: SkiddleEventRequest): string => {
+export const SKIDDLE_EVENTS_SEARCH = (skiddleEvent: SoundrEventRequest): string => {
   const params: Record<string, string> = {
     api_key: process.env.SKIDDLE_API_KEY || '',
   };
