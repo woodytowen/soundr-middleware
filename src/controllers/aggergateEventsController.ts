@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 export const aggregateEventsController = async (req: Request, res: Response) => {
   try {
     // Pass request params to aggregate service if needed
-    const data = await aggregateSoundrEvents();
+    const data = await aggregateSoundrEvents(req);
 
     if (!data || data.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({
@@ -16,6 +16,7 @@ export const aggregateEventsController = async (req: Request, res: Response) => 
 
     res.status(StatusCodes.OK).json({
       success: true,
+      resultsLength: data.length,
       data,
     });
   } catch (error) {

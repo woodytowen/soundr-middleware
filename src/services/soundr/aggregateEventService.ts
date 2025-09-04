@@ -1,44 +1,52 @@
-import { SoundrEvent } from '../../models/soundr/event';
+import { getSkiddleGenreIds, getTicketmasterGenreIds } from '../../builder/requestBuilders/eventRequestBuilder';
+import { SkiddleGenreKeys, TicketMasterGenreKeys } from '../../builder/requestBuilders/genreKeys';
+import {
+  buildSkiddleEvent,
+  buildSoundrEvent,
+  buildTicketMasterEvent,
+} from '../../builder/responseBuilders/eventBuilders';
 import { getEventsSkiddle } from '../skiddle/skiddleService';
 import { getEventsTicketMaster } from '../ticketMaster/ticketService';
+import { deduplicateEvents } from '../utils/serviceUtils';
 
-//TODO return SoundrEvent
-//This will be in a seperate file as a responseBuilder
-const normalizeToSoundrEvent = (event: any, source: 'skiddle' | 'ticketmaster'): SoundrEvent => {
-  // Map fields from each API to your SoundrEvent model
-  return {
-    name: event?.name ?? event?.eventname ?? null,
-    date: event?.date ?? event?.dates?.start?.dateTime ?? null,
-    venue: event?.venue?.name ?? event?._embedded?.venues?.[0]?.name ?? null,
-    // ...other fields
-    source: source,
-  };
+export const aggregateSoundrEvents = async (req: any) => {
+  const genreNames = Array.isArray(req.body.genres) ? req.body.genres : [req.body.genres].filter(Boolean);
+
+  const skiddleGenreIds = getSkiddleGenreIds(genreNames);
+  const ticketmasterGenreIds = getTicketmasterGenreIds(genreNames);
+
+  const [skiddleEvents, ticketmasterEvents] = await fetchEvents(skiddleGenreIds, ticketmasterGenreIds);
+
+  // Normalize
+  const normalizedSkiddle = skiddleEvents.map((e) => buildSoundrEvent(buildSkiddleEvent(e), 'skiddle'));
+  const normalizedTicketmaster = ticketmasterEvents.map((e) =>
+    buildSoundrEvent(buildTicketMasterEvent(e), 'ticketmaster')
+  );
+
+  // Deduplicate (moved to utility)
+  return deduplicateEvents([...normalizedSkiddle, ...normalizedTicketmaster]);
 };
 
-//TODO pass in required parameters - currently hardcoded in
-export const aggregateSoundrEvents = async () => {
-  // Call both APIs in parallel
-  const [skiddleEvents, ticketmasterEvents] = await Promise.all([
-    getEventsSkiddle({ genre: ['8', '80'] }),
-    getEventsTicketMaster(),
-  ]);
-
-  // Normalize both sets of events
-  const normalizedSkiddle = skiddleEvents.map((e) => normalizeToSoundrEvent(e, 'skiddle'));
-  const normalizedTicketmaster = ticketmasterEvents.map((e) => normalizeToSoundrEvent(e, 'ticketmaster'));
-
-  // Combine and deduplicate
-  const allEvents = [...normalizedSkiddle, ...normalizedTicketmaster];
-  const seen = new Set<string>();
-  const deduped: SoundrEvent[] = [];
-
-  for (const event of allEvents) {
-    const key = `${event.name.toLowerCase()}|${event.date}|${event.venue.toLowerCase()}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      deduped.push(event);
-    }
+// Helper to fetch events based on genre IDs
+const fetchEvents = async (skiddleGenreIds: string[], ticketmasterGenreIds: string[]) => {
+  if (
+    (!skiddleGenreIds || skiddleGenreIds.length === 0) &&
+    (!ticketmasterGenreIds || ticketmasterGenreIds.length === 0)
+  ) {
+    return Promise.all([
+      getEventsSkiddle({ genre: Object.values(SkiddleGenreKeys) }),
+      getEventsTicketMaster({ genre: Object.values(TicketMasterGenreKeys) }),
+    ]);
   }
-
-  return deduped;
+  if (skiddleGenreIds && skiddleGenreIds.length > 0 && (!ticketmasterGenreIds || ticketmasterGenreIds.length === 0)) {
+    return [await getEventsSkiddle({ genre: skiddleGenreIds }), []];
+  }
+  if ((!skiddleGenreIds || skiddleGenreIds.length === 0) && ticketmasterGenreIds && ticketmasterGenreIds.length > 0) {
+    return [[], await getEventsTicketMaster({ genre: ticketmasterGenreIds })];
+  }
+  // Both have genres
+  return Promise.all([
+    getEventsSkiddle({ genre: skiddleGenreIds }),
+    getEventsTicketMaster({ genre: ticketmasterGenreIds }),
+  ]);
 };

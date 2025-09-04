@@ -10,6 +10,8 @@ export const SKIDDLE_BASE_URL = 'https://www.skiddle.com/api/v1/';
  *
  *
  */
+
+//TODO Note API is only limited to 20 results currently
 export const SKIDDLE_EVENTS_SEARCH = (skiddleEvent: SoundrEventRequest): string => {
   const params: Record<string, string> = {
     api_key: process.env.SKIDDLE_API_KEY || '',
