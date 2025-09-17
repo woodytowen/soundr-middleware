@@ -5,7 +5,7 @@ import { artistController } from '../../controllers/soundrArtistController';
 export const eventsRouter = express.Router();
 export const artistRouter = express.Router();
 
-eventsRouter.get('/events', async (req, res, next) => {
+eventsRouter.post('/events', async (req, res, next) => {
   try {
     await aggregateEventsController(req, res);
   } catch (err) {

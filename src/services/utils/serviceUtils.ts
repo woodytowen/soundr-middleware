@@ -21,3 +21,18 @@ export function deduplicateEvents(events: SoundrEvent[]): SoundrEvent[] {
   }
   return deduped;
 }
+
+export const sortByDate = (events: SoundrEvent[]): SoundrEvent[] => {
+  const sorted = events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  // Filter out events before today (keep events from today onwards)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to start of today
+  return sorted.filter((a) => new Date(a.date) >= today);
+};
+
+/**
+ * TODO need some logic here instead to check whether an entry has already been found throughout the list, and instead of removing it
+ * Add to an existing list with another source url
+ *
+ * This is for future work - right now just get it working...
+ */
