@@ -21,7 +21,6 @@ export const buildSkiddleEvent = (event: Result): Partial<SoundrEvent> => {
   };
 };
 
-//Todo Currently broken
 const buildArtist = (artists: Artist[]): SoundrArtist[] => {
   if (artists.length === 0) return [];
   return artists.map((artist) => ({

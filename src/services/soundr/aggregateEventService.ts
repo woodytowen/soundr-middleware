@@ -1,56 +1,65 @@
 import { getSkiddleGenreIds, getTicketmasterGenreIds } from '../../builder/requestBuilders/eventRequestBuilder';
-import { SkiddleGenreKeys, TicketMasterGenreKeys } from '../../builder/requestBuilders/genreKeys';
 import { buildSkiddleEvent } from '../../builder/responseBuilders/buildSkiddleEvent';
 import { buildTicketMasterEvent } from '../../builder/responseBuilders/buildTicketMasterEvent';
 import { buildSoundrEvent } from '../../builder/responseBuilders/eventBuilders';
 import { Result } from '../../models/rest-api/skiddleEventResponse';
 import { Event as TicketMasterEvent } from '../../models/rest-api/ticketMasterEventResponse';
-import { getEventsSkiddle } from '../skiddle/skiddleService';
-import { getEventsTicketMaster } from '../ticketMaster/ticketService';
+import { SoundrEventRequest } from '../../models/soundr/eventRequest';
 import { deduplicateEvents, sortByDate } from '../utils/serviceUtils';
+import { API_CONFIGS } from './apiConfig';
 
-export const aggregateSoundrEvents = async (req: any) => {
-  const genreNames = Array.isArray(req.body.genres) ? req.body.genres : [req.body.genres].filter(Boolean);
+export const aggregateSoundrEvents = async (soundrEventRequest: SoundrEventRequest) => {
+  // Build Events for configured APIs
+  const requests = buildApiRequests(soundrEventRequest);
 
-  const skiddleGenreIds = getSkiddleGenreIds(genreNames);
-  const ticketmasterGenreIds = getTicketmasterGenreIds(genreNames);
+  // Fetch Requests from both API's
+  const [skiddleEvents, ticketmasterEvents] = await fetchEvents(requests);
 
-  const [skiddleEvents, ticketmasterEvents] = await fetchEvents(skiddleGenreIds, ticketmasterGenreIds);
-
-  // Normalize
+  // Normalize the results (building custom response)
   const normalizedSkiddle = (skiddleEvents as Result[]).map((e) => buildSoundrEvent(buildSkiddleEvent(e), 'skiddle'));
   const normalizedTicketmaster = (ticketmasterEvents as TicketMasterEvent[]).map((e) =>
     buildSoundrEvent(buildTicketMasterEvent(e), 'ticketmaster')
   );
 
-  // Deduplicate - TODO needs remaining
+  // Removing Duplicate Events
   const deDuped = deduplicateEvents([...normalizedSkiddle, ...normalizedTicketmaster]);
+
+  //Return Results sorted by date - We sort again to merge Rest API responses so they're not out of order
   return sortByDate(deDuped);
 };
 
-// Helper to fetch events based on genre IDs
-const fetchEvents = async (skiddleGenreIds: string[], ticketmasterGenreIds: string[]) => {
-  if (
-    (!skiddleGenreIds || skiddleGenreIds.length === 0) &&
-    (!ticketmasterGenreIds || ticketmasterGenreIds.length === 0)
-  ) {
-    // If no genres are specified
-    return Promise.all([
-      getEventsSkiddle({ genre: Object.values(SkiddleGenreKeys) }),
-      getEventsTicketMaster({ genre: Object.values(TicketMasterGenreKeys) }),
-    ]);
+const fetchEvents = async (requests: Record<string, SoundrEventRequest>) => {
+  // Check which APIs have genre filters
+  const apisWithGenres = API_CONFIGS.filter((api) => requests[api.name] && api.hasGenres(requests[api.name]));
+
+  // If no APIs have genres, fetch all from all APIs
+  if (apisWithGenres.length === 0) {
+    return Promise.all(API_CONFIGS.map((api) => api.service(requests[api.name] || {})));
   }
-  // If only Skiddle genres are found and specified
-  if (skiddleGenreIds && skiddleGenreIds.length > 0 && (!ticketmasterGenreIds || ticketmasterGenreIds.length === 0)) {
-    return [await getEventsSkiddle({ genre: skiddleGenreIds }), []];
-  }
-  //If only TicketMaster genres are found and specified
-  if ((!skiddleGenreIds || skiddleGenreIds.length === 0) && ticketmasterGenreIds && ticketmasterGenreIds.length > 0) {
-    return [[], await getEventsTicketMaster({ genre: ticketmasterGenreIds })];
-  }
-  // Both have genres
-  return Promise.all([
-    getEventsSkiddle({ genre: skiddleGenreIds }),
-    getEventsTicketMaster({ genre: ticketmasterGenreIds }),
-  ]);
+
+  // Fetch only from APIs that have genre filters
+  const results = await Promise.all(
+    API_CONFIGS.map((api) =>
+      apisWithGenres.some((filteredApi) => filteredApi.name === api.name)
+        ? api.service(requests[api.name])
+        : Promise.resolve([])
+    )
+  );
+
+  return results;
+};
+
+const buildApiRequests = (soundrEventRequest: SoundrEventRequest): Record<string, SoundrEventRequest> => {
+  return {
+    skiddle: {
+      genre: getSkiddleGenreIds(soundrEventRequest.genre),
+      offset: soundrEventRequest.offset,
+      location: soundrEventRequest.location,
+    },
+    ticketmaster: {
+      genre: getTicketmasterGenreIds(soundrEventRequest.genre),
+      offset: soundrEventRequest.offset,
+      location: soundrEventRequest.location,
+    },
+  };
 };

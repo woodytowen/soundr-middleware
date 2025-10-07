@@ -12,19 +12,25 @@ export const SKIDDLE_BASE_URL = 'https://www.skiddle.com/api/v1/';
  */
 
 //TODO Note API is only limited to 20 results currently - Can add filter for Date and Time too - calendar stuff for FE
+//Current;y filtering all descending date also
+
+/**
+ * offset - the currentPage value
+ */
 export const SKIDDLE_EVENTS_SEARCH = (skiddleEvent: SoundrEventRequest): string => {
   const params: Record<string, string> = {
     api_key: process.env.SKIDDLE_API_KEY || '',
   };
 
   //TODO This needs re-working - using body now
-  if (skiddleEvent.latitude !== undefined) params.latitude = String(skiddleEvent.latitude);
-  if (skiddleEvent.longitude !== undefined) params.longitude = String(skiddleEvent.longitude);
-  if (skiddleEvent.radius !== undefined) params.radius = String(skiddleEvent.radius);
+  //This won't work currently
+  if (skiddleEvent.location !== undefined) params.latitude = String(skiddleEvent.location);
+  /*   if (skiddleEvent.longitude !== undefined) params.longitude = String(skiddleEvent.longitude);
+  if (skiddleEvent.radius !== undefined) params.radius = String(skiddleEvent.radius); */
   if (skiddleEvent.genre && skiddleEvent.genre.length > 0) params.g = formatArrayForUrl(skiddleEvent.genre);
 
   const queryString = new URLSearchParams(params).toString();
-  return `${SKIDDLE_BASE_URL}events/search/?${queryString}&description=1`;
+  return `${SKIDDLE_BASE_URL}events/search/?${queryString}&description=1&order=date&offset=${skiddleEvent.offset}`;
 };
 
 export const SKIDDLE_ARTIST_SEARCH = (artistName: string): string => {

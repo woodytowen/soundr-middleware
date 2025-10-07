@@ -1,13 +1,24 @@
 import { aggregateSoundrEvents } from '../services/soundr/aggregateEventService';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { validateAggregateEventRequest } from './utils/validateEventsRequest';
 
 export const aggregateEventsController = async (req: Request, res: Response) => {
   try {
-    // Pass request params to aggregate service if needed
-    const data = await aggregateSoundrEvents(req);
+    // Validate request
+    const validation = validateAggregateEventRequest(req);
 
-    if (!data || data.length === 0) {
+    if (!validation.success) {
+      return res.status(validation.error!.statusCode).json({
+        success: false,
+        message: validation.error!.message,
+      });
+    }
+
+    const soundrEventRequest = validation.data!;
+    const events = await aggregateSoundrEvents(soundrEventRequest);
+
+    if (!events || events.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: 'No events found',
@@ -16,8 +27,8 @@ export const aggregateEventsController = async (req: Request, res: Response) => 
 
     res.status(StatusCodes.OK).json({
       success: true,
-      resultsLength: data.length,
-      data,
+      resultsLength: events.length,
+      events,
     });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

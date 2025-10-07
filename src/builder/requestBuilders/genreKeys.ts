@@ -6,6 +6,7 @@ export enum TicketMasterGenreKeys {
   EXPERIMENTAL_JUNGLE = 'KZazBEonSMnZfZ7vAEE',
   TECHNO_BASS = 'KZazBEonSMnZfZ7vAtJ',
   TECHNO = 'KZazBEonSMnZfZ7vAt1',
+  DANCE_AND_ELECTRONIC = 'KnvZfZ7vAvF',
 }
 
 export enum SkiddleGenreKeys {
@@ -32,4 +33,5 @@ export const ticketMasterGenreMap: Record<string, string> = {
   EXPERIMENTAL_JUNGLE: TicketMasterGenreKeys.EXPERIMENTAL_JUNGLE,
   TECHNO_BASS: TicketMasterGenreKeys.TECHNO_BASS,
   TECHNO: TicketMasterGenreKeys.TECHNO,
+  DANCE_AND_ELECTRONIC: TicketMasterGenreKeys.DANCE_AND_ELECTRONIC,
 };
