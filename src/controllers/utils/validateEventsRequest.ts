@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { SoundrEventRequest } from '../models/soundr/eventRequest';
+import { SoundrEventRequest } from '../../models/soundr/eventRequest';
 
 interface ValidationError {
   statusCode: number;
