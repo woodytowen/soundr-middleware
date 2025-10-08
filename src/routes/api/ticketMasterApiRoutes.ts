@@ -1,6 +1,6 @@
 import { TicketMasterGenreKeys } from '../../builder/requestBuilders/genreKeys';
 import { SoundrEventRequest } from '../../models/soundr/eventRequest';
-import { formatArrayForUrl } from '../util/utils';
+import { convertLatLongToGeoHash, formatArrayForUrl } from '../util/routesUtils';
 
 export const BASE_URL = 'https://app.ticketmaster.com/discovery/v2/';
 
@@ -37,6 +37,15 @@ export const TICKET_MASTER_GET_EVENTS = (soundrEventRequest: SoundrEventRequest)
   // Add pagination if offset is provided
   if (soundrEventRequest.offset && soundrEventRequest.offset > 0) {
     params.append('page', String(soundrEventRequest.offset));
+  }
+
+  if (soundrEventRequest.location) {
+    params.append(
+      'geoPoint',
+      String(convertLatLongToGeoHash(soundrEventRequest.location.latitude, soundrEventRequest.location.longitude))
+    );
+    params.append('radius', String(soundrEventRequest.location.radius));
+    params.append('unit', 'miles');
   }
 
   return `${BASE_URL}events.json?${params.toString()}`;

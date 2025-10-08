@@ -1,11 +1,11 @@
-import { getSkiddleGenreIds, getTicketmasterGenreIds } from '../../builder/requestBuilders/eventRequestBuilder';
+import { buildApiRequests } from '../../builder/requestBuilders/eventRequestBuilder';
 import { buildSkiddleEvent } from '../../builder/responseBuilders/buildSkiddleEvent';
 import { buildTicketMasterEvent } from '../../builder/responseBuilders/buildTicketMasterEvent';
 import { buildSoundrEvent } from '../../builder/responseBuilders/eventBuilders';
 import { Result } from '../../models/rest-api/skiddleEventResponse';
 import { Event as TicketMasterEvent } from '../../models/rest-api/ticketMasterEventResponse';
 import { SoundrEventRequest } from '../../models/soundr/eventRequest';
-import { deduplicateEvents, sortByDate } from '../utils/serviceUtils';
+import { deduplicateEvents, sortByDate } from '../util/serviceUtils';
 import { API_CONFIGS } from './apiConfig';
 
 export const aggregateSoundrEvents = async (soundrEventRequest: SoundrEventRequest) => {
@@ -47,19 +47,4 @@ const fetchEvents = async (requests: Record<string, SoundrEventRequest>) => {
   );
 
   return results;
-};
-
-const buildApiRequests = (soundrEventRequest: SoundrEventRequest): Record<string, SoundrEventRequest> => {
-  return {
-    skiddle: {
-      genre: getSkiddleGenreIds(soundrEventRequest.genre),
-      offset: soundrEventRequest.offset,
-      location: soundrEventRequest.location,
-    },
-    ticketmaster: {
-      genre: getTicketmasterGenreIds(soundrEventRequest.genre),
-      offset: soundrEventRequest.offset,
-      location: soundrEventRequest.location,
-    },
-  };
 };

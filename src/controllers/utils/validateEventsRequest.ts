@@ -1,83 +1,52 @@
-import { StatusCodes } from 'http-status-codes';
-import { SoundrEventRequest } from '../../models/soundr/eventRequest';
+import { buildErrorResponse, ValidateEventResult } from './errorCodes';
 
-interface ValidationError {
-  statusCode: number;
-  message: string;
-}
-
-interface ValidationResult {
-  success: boolean;
-  data?: SoundrEventRequest;
-  error?: ValidationError;
-}
-
-export const validateAggregateEventRequest = (req: any): ValidationResult => {
-  // Validate genres
+/**
+ * Validates the incoming request for aggregating events.
+ *
+ * Rules:
+ * Genre can be undefined - Reason: Its for a filter on the front-end
+ * Location can be undefined - Reason: Its only if the user allows the location services
+ * Offset: Has to be checked regardless for Pagination
+ *
+ * @param req The incoming request object.
+ * @returns A ValidateEventResult indicating the success or failure of the validation.
+ */
+export const validateAggregateEventRequest = (req: any): ValidateEventResult => {
   const genreNames = Array.isArray(req.body.genres) ? req.body.genres : req.body.genres ? [req.body.genres] : [];
 
-  // Validate offset
   const offset = parseInt(req.body.offset) || 0;
   if (offset < 0) {
-    return {
-      success: false,
-      error: {
-        statusCode: StatusCodes.BAD_REQUEST,
-        message: 'Offset must be a non-negative number',
-      },
-    };
+    return buildErrorResponse('INVALID_OFFSET');
   }
 
-  // Check if location data is provided
   const hasLocationData =
-    req.body.longitude !== undefined || req.body.latitude !== undefined || req.body.radius !== undefined;
+    req.body.location !== undefined &&
+    (req.body.location?.longitude !== undefined ||
+      req.body.location?.latitude !== undefined ||
+      req.body.location?.radius !== undefined);
 
   let location = null;
 
   if (hasLocationData) {
-    // If any location field is provided, validate all are present and valid
-    const longitude = parseFloat(req.body.longitude);
-    const latitude = parseFloat(req.body.latitude);
-    const radius = parseFloat(req.body.radius);
+    const parsedLocation = req.body.location;
+    const longitude = parseFloat(parsedLocation.longitude);
+    const latitude = parseFloat(parsedLocation.latitude);
+    const radius = parseFloat(parsedLocation.radius);
 
     if (isNaN(longitude) || isNaN(latitude) || isNaN(radius)) {
-      return {
-        success: false,
-        error: {
-          statusCode: StatusCodes.BAD_REQUEST,
-          message: 'Invalid location data. Longitude, latitude, and radius must be valid numbers.',
-        },
-      };
+      return buildErrorResponse('INVALID_LOCATION_DATA');
     }
 
     if (longitude < -180 || longitude > 180) {
-      return {
-        success: false,
-        error: {
-          statusCode: StatusCodes.BAD_REQUEST,
-          message: 'Longitude must be between -180 and 180.',
-        },
-      };
+      return buildErrorResponse('INVALID_LONGITUDE');
     }
 
     if (latitude < -90 || latitude > 90) {
-      return {
-        success: false,
-        error: {
-          statusCode: StatusCodes.BAD_REQUEST,
-          message: 'Latitude must be between -90 and 90.',
-        },
-      };
+      return buildErrorResponse('INVALID_LATITUDE');
     }
 
     if (radius <= 0) {
-      return {
-        success: false,
-        error: {
-          statusCode: StatusCodes.BAD_REQUEST,
-          message: 'Radius must be greater than 0.',
-        },
-      };
+      return buildErrorResponse('INVALID_RADIUS');
     }
 
     location = { longitude, latitude, radius };

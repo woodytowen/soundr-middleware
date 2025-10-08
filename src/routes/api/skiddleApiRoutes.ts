@@ -1,5 +1,5 @@
 import { SoundrEventRequest } from '../../models/soundr/eventRequest';
-import { formatArrayForUrl } from '../util/utils';
+import { formatArrayForUrl } from '../util/routesUtils';
 
 export const SKIDDLE_BASE_URL = 'https://www.skiddle.com/api/v1/';
 
@@ -22,11 +22,12 @@ export const SKIDDLE_EVENTS_SEARCH = (skiddleEvent: SoundrEventRequest): string 
     api_key: process.env.SKIDDLE_API_KEY || '',
   };
 
-  //TODO This needs re-working - using body now
-  //This won't work currently
-  if (skiddleEvent.location !== undefined) params.latitude = String(skiddleEvent.location);
-  /*   if (skiddleEvent.longitude !== undefined) params.longitude = String(skiddleEvent.longitude);
-  if (skiddleEvent.radius !== undefined) params.radius = String(skiddleEvent.radius); */
+  if (skiddleEvent.location) {
+    params.latitude = String(skiddleEvent.location.latitude);
+    params.longitude = String(skiddleEvent.location.longitude);
+    params.radius = String(skiddleEvent.location.radius);
+  }
+
   if (skiddleEvent.genre && skiddleEvent.genre.length > 0) params.g = formatArrayForUrl(skiddleEvent.genre);
 
   const queryString = new URLSearchParams(params).toString();
