@@ -1,4 +1,4 @@
-export interface Root {
+export interface TicketMasterResponse {
   _embedded: Embedded;
   _links: Links4;
   page: Page;

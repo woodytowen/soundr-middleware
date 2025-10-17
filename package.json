@@ -16,11 +16,14 @@
   "keywords": [],
   "author": "Owen Woodward",
   "license": "ISC",
-  "description": "Test application for setting up node with typescript",
+  "description": "Event aggregation API that combines Skiddle and Ticketmaster data to provide unified Dance/Electronic music event discovery",
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "ngeohash": "^0.6.3"
+    "ngeohash": "^0.6.3",
+    "axios": "^1.7.9",
+    "helmet": "^8.0.0",
+    "http-status-codes": "^2.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
@@ -29,11 +32,8 @@
     "@types/node": "^22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
-    "axios": "^1.7.9",
     "eslint": "^9.16.0",
     "globals": "^15.13.0",
-    "helmet": "^8.0.0",
-    "http-status-codes": "^2.3.0",
     "husky": "^9.1.7",
     "nodemon": "^3.1.10",
     "prettier": "^3.4.1",

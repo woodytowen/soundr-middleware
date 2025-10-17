@@ -1,7 +1,12 @@
 import { SoundrEventRequest } from '../../models/soundr/eventRequest';
 import { SkiddleGenreKeys, skiddleGenreMap, TicketMasterGenreKeys, ticketMasterGenreMap } from './genreKeys';
 
-export const buildApiRequests = (soundrEventRequest: SoundrEventRequest): Record<string, SoundrEventRequest> => {
+type EventApiRequests = {
+  skiddle: SoundrEventRequest;
+  ticketmaster: SoundrEventRequest;
+};
+
+export const buildEventApiRequests = (soundrEventRequest: SoundrEventRequest): EventApiRequests => {
   return {
     skiddle: {
       genre: getSkiddleGenreIds(soundrEventRequest.genre),

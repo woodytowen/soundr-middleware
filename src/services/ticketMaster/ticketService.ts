@@ -8,7 +8,11 @@ export const getEventsTicketMaster = async (soundrEventRequest: SoundrEventReque
 
   const response = await axios.get(apiUrl);
 
-  if (!response.data?._embedded?.events) {
+  if (!response.data || response.status !== 200) {
+    throw new Error('Requested TicketMaster Events Not Found');
+  }
+
+  if (response.data._embedded === undefined || response.data._embedded.events.length === 0) {
     return [];
   }
 

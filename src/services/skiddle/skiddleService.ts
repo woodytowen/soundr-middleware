@@ -4,10 +4,6 @@ import { SoundrEventRequest } from '../../models/soundr/eventRequest';
 import { Result, SkiddleEventResponse } from '../../models/rest-api/skiddleEventResponse';
 
 export const getEventsSkiddle = async (skiddleEvent: SoundrEventRequest): Promise<Result[]> => {
-  //if using an array for genres -> need to unpacking here and cracking string for API
-
-  //Need to unpackRequest here with GenreKeyMapping
-
   const apiUrl = SKIDDLE_EVENTS_SEARCH(skiddleEvent);
 
   const response: SkiddleEventResponse = await axios.get(apiUrl);
@@ -16,7 +12,10 @@ export const getEventsSkiddle = async (skiddleEvent: SoundrEventRequest): Promis
     throw new Error('Requested Skiddle Events Not Found');
   }
 
-  //Todo do we need a response builder here or send everything?
+  if (response.data.pagecount === 0) {
+    return [];
+  }
+
   return response.data.results;
 };
 

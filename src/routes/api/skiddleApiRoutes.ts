@@ -3,20 +3,9 @@ import { formatArrayForUrl } from '../util/routesUtils';
 
 export const SKIDDLE_BASE_URL = 'https://www.skiddle.com/api/v1/';
 
-/**
- *
- * TODO Note: On mobile application, if location services are not permitted,
- * need to make sure this API call for long, lat, radius are optional fields in the future
- *
- *
- */
-
 //TODO Note API is only limited to 20 results currently - Can add filter for Date and Time too - calendar stuff for FE
-//Current;y filtering all descending date also
+//Currently filtering all descending date also
 
-/**
- * offset - the currentPage value
- */
 export const SKIDDLE_EVENTS_SEARCH = (skiddleEvent: SoundrEventRequest): string => {
   const params: Record<string, string> = {
     api_key: process.env.SKIDDLE_API_KEY || '',
@@ -50,14 +39,6 @@ export const SKIDDLE_ARTIST_EVENTS = (artistId: string): string => {
   const queryString = new URLSearchParams(params).toString();
   return `${SKIDDLE_BASE_URL}artists/${artistId}/events?${queryString}`;
 };
-
-export const SKIDDLE_GENRES = (() => {
-  const params: Record<string, string> = {
-    api_key: process.env.SKIDDLE_API_KEY || '',
-  };
-  const queryString = new URLSearchParams(params).toString();
-  return `${SKIDDLE_BASE_URL}genres?${queryString}`;
-})();
 
 /* export const SKIDDLE_ARTIST_SEARCH = (artistName: string) => {
   return `${SKIDDLE_BASE_URL}/artists/?api_key=${process.env.SKIDDLE_API_KEY}&name=${artistName}`;

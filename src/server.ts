@@ -2,6 +2,9 @@ import express from 'express';
 import helmet from 'helmet';
 import { eventsRouter as eventRouterSoundr } from './routes/soundr/eventsRouter';
 import dotenv from 'dotenv';
+import { deduplicateAndMergeEvents } from './services/util/serviceUtils';
+import { MOCK_SOUND_EVENT } from './builder/responseBuilders/mocks/mockSoundrEvent';
+import packageJson from '../package.json';
 
 const app = express();
 dotenv.config();
@@ -23,13 +26,13 @@ app.get('/', (req, res) => {
 // Detailed API info
 app.get('/api/info', (req, res) => {
   res.json({
-    service: 'Soundr Middleware API',
-    version: '1.0.0',
-    description: 'Aggregates event data from multiple ticketing APIs',
+    application: packageJson.name,
+    version: packageJson.version,
+    description: packageJson.description,
     endpoints: [
       {
         path: 'POST /soundr/events',
-        description: 'Get aggregated events from Skiddle and TicketMaster sources',
+        description: 'Aggregates event data from multiple ticketing APIs',
         method: 'POST',
         contentType: 'application/json',
         body: {
@@ -54,6 +57,12 @@ app.get('/api/info', (req, res) => {
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
+app.use('/TestEndPoint', (req, res) => {
+  const result = deduplicateAndMergeEvents(MOCK_SOUND_EVENT);
+  console.log(result);
+  res.json(result);
 });
 
 app.use('/soundr', eventRouterSoundr);

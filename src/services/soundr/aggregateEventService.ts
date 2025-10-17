@@ -1,28 +1,28 @@
-import { buildApiRequests } from '../../builder/requestBuilders/eventRequestBuilder';
+import { buildEventApiRequests } from '../../builder/requestBuilders/eventRequestBuilder';
 import { buildSkiddleEvent } from '../../builder/responseBuilders/buildSkiddleEvent';
 import { buildTicketMasterEvent } from '../../builder/responseBuilders/buildTicketMasterEvent';
 import { buildSoundrEvent } from '../../builder/responseBuilders/eventBuilders';
 import { Result } from '../../models/rest-api/skiddleEventResponse';
 import { Event as TicketMasterEvent } from '../../models/rest-api/ticketMasterEventResponse';
 import { SoundrEventRequest } from '../../models/soundr/eventRequest';
-import { deduplicateEvents, sortByDate } from '../util/serviceUtils';
+import { deduplicateAndMergeEvents, sortByDate } from '../util/serviceUtils';
 import { API_CONFIGS } from './apiConfig';
 
 export const aggregateSoundrEvents = async (soundrEventRequest: SoundrEventRequest) => {
   // Build Events for configured APIs
-  const requests = buildApiRequests(soundrEventRequest);
+  const requests = buildEventApiRequests(soundrEventRequest);
 
   // Fetch Requests from both API's
   const [skiddleEvents, ticketmasterEvents] = await fetchEvents(requests);
 
   // Normalize the results (building custom response)
-  const normalizedSkiddle = (skiddleEvents as Result[]).map((e) => buildSoundrEvent(buildSkiddleEvent(e), 'skiddle'));
+  const normalizedSkiddle = (skiddleEvents as Result[]).map((e) => buildSoundrEvent(buildSkiddleEvent(e)));
   const normalizedTicketmaster = (ticketmasterEvents as TicketMasterEvent[]).map((e) =>
-    buildSoundrEvent(buildTicketMasterEvent(e), 'ticketmaster')
+    buildSoundrEvent(buildTicketMasterEvent(e))
   );
 
-  // Removing Duplicate Events
-  const deDuped = deduplicateEvents([...normalizedSkiddle, ...normalizedTicketmaster]);
+  // Removing Duplicate Events and Merging Events if they're on different source types
+  const deDuped = deduplicateAndMergeEvents([...normalizedSkiddle, ...normalizedTicketmaster]);
 
   //Return Results sorted by date - We sort again to merge Rest API responses so they're not out of order
   return sortByDate(deDuped);

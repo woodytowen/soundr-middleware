@@ -3,12 +3,15 @@ export type SoundrEvent = {
   date: string;
   venue: string;
   artist: SoundrArtist[];
-  source: string;
-  skiddleDeeplink?: string;
-  ticketMasterDeeplink?: string;
+  sources?: EventSource[];
   venueDetails?: SoundrEventVenue;
-  eventImageUrl?: string; //TODO Temporary solution until we have artists implemented
+  eventImageUrl?: string;
 };
+
+export interface EventSource {
+  name: string;
+  deepLinkUrl?: string;
+}
 
 export type SoundrEventVenue = {
   name: string;
@@ -24,6 +27,12 @@ export type SoundrEventVenue = {
 export type SoundrArtist = {
   artistName: string;
   artistImage: string;
-  spotifyArtistUrl?: string; //TicketMaster: externalLinks (for spotifyUrl)
+  spotifyArtistUrl?: string;
   //More room to also add insta links, facebook etc.
 };
+
+//SourceType
+export enum SourceType {
+  Skiddle = 'skiddle',
+  TicketMaster = 'ticketmaster',
+}
